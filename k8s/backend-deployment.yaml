@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: yolo-backend:latest
+          image: cpouthier/yolo-backend:latest
           ports:
             - containerPort: 8000
           volumeMounts:
