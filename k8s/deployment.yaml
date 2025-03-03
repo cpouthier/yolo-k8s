@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yolo-web
+  labels:
+    app: yolo-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yolo-web
+  template:
+    metadata:
+      labels:
+        app: yolo-web
+    spec:
+      containers:
+      - name: yolo-web
+        image: cpouthier/yolo-web:latest  # Replace with your YOLO web UI container
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - mountPath: /uploads
+          name: uploads-volume
+      volumes:
+      - name: uploads-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yolo-web-service
+spec:
+  selector:
+    app: yolo-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: ClusterIP
+---
+apiversion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: yolo-web-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: pouthier.fr  # Change this to match your domain or ingress setup
+    http:
+      paths:
+      - path: /yolo/
+        pathType: Prefix
+        backend:
+          service:
+            name: yolo-web-service
+            port:
+              number: 80
